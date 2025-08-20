@@ -1,61 +1,79 @@
-'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
 
-  const handleRegister = async () => {
-    if (!email || !password) {
-      setError('Please fill in both email and password.');
-      return;
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.message);
+    } else {
+      router.push("/login");
     }
-
-    localStorage.setItem('auth_token', 'demo_token');
-    router.push('/dashboard');
   };
 
   return (
-   <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-        <h1 className=" font-semibold text-gray-700">📝 Task Tracker</h1>
+    <div className="flex items-center justify-center h-screen">
+      <form onSubmit={handleSubmit} className="p-6 border rounded w-96 space-y-4">
+        <h1 className="text-2xl font-bold">Register</h1>
+        {error && <p className="text-red-500">{error}</p>}
 
-          <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Register</h2>
-          {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full mb-4 p-2 border border-gray-300 rounded"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full mb-4 p-2 border border-gray-300 rounded"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            className="w-full bg-blue-950 hover:bg-blue-700 text-white py-2 rounded"
-            onClick={handleRegister}
+        <input
+          type="text"
+          name="name"
+          placeholder="Name"
+          value={form.name}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={handleChange}
+          className="w-full border p-2 rounded"
+        />
+
+        <button className="w-full bg-blue-500 text-white py-2 rounded">
+          Register
+        </button>
+
+        <p className="text-sm text-center">
+          Already have an account?{" "}
+          <span
+            onClick={() => router.push("/login")}
+            className="text-blue-500 cursor-pointer underline"
           >
-            Register
-          </button>
-          <p className="mt-4 text-gray-600 text-center text-sm">
-            Already have an account?{' '}
-            <span
-              className="text-blue-500 hover:underline cursor-pointer"
-              onClick={() => router.push('/login')}
-            >
-              Login
-            </span>
-          </p>
-        </div>
-      </div>
-    
+            Login
+          </span>
+        </p>
+      </form>
+    </div>
   );
 }

@@ -12,8 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Task Tracker | Dashboard",
-  description: "Track tasks, deadlines, and productivity with ease",
+  title: "Dashboard",
 };
 
 export default function RootLayout({ children }) {
